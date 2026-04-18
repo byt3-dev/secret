@@ -16,23 +16,21 @@ if (!(Test-Path $toolsDir)) {
     New-Item -ItemType Directory -Path $toolsDir | Out-Null
 }
 
-# 2. Download the latest release from GitHub
-$releaseUrl = "https://github.com/byt3-dev/secret/releases/latest/download/secret.exe"
+# 2. Download secret.exe from the main branch
+$releaseUrl = "https://github.com/byt3-dev/secret/blob/main/dist/secret.exe?raw=true"
 
-Write-Host "Downloading latest Secret release..."
+Write-Host "Downloading Secret from main branch..."
 Invoke-WebRequest -Uri $releaseUrl -OutFile $exePath
 
 # 3. Ensure the file is executable
 Write-Host "Setting executable permissions..."
 icacls $exePath /grant "$($env:USERNAME):(RX)" | Out-Null
 
-# 4. Add tools directory to PATH (User PATH only, no truncation)
+# 4. Add tools directory to PATH (User PATH only, safe, no truncation)
 Write-Host "Adding Secret to PATH..."
 
-# Read PATH safely
 $path = [Environment]::GetEnvironmentVariable("PATH", "User")
 
-# Avoid duplicates
 if ($path -notlike "*$toolsDir*") {
     $newPath = "$path;$toolsDir"
     [Environment]::SetEnvironmentVariable("PATH", $newPath, "User")
@@ -44,3 +42,4 @@ if ($path -notlike "*$toolsDir*") {
 # 5. Final message
 Write-Host "`nInstallation complete!" -ForegroundColor Green
 Write-Host "You can now run: secret" -ForegroundColor Yellow
+
